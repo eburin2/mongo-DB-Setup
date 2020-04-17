@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/users_test');
+mongoose.Promise = global.Promise;
 
-mongoose.connection
-  .once('open', () => console.log('Good to go'))
+before((done) => {
+  mongoose.connect('mongodb://localhost/users_test', { useUnifiedTopology: true, useNewUrlParser: true });
+  mongoose.connection
+  .once('open', () => { done(); })
   .on('error', (error) => {
     console.warn('Warning', error);
   });
+});
 
-  beforeEach(() => {
-    mongoose.connection.collections.users.drop();
+
+  beforeEach((done) => {
+    mongoose.connection.collections.users.drop(() => {
+      // run the next test
+      done();
+    });
   });
